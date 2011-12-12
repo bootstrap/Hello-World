@@ -515,6 +515,37 @@ Also see [[AdvancedOptions]]</pre>
 <div title="DefaultTiddlers" creator="bootStrap" modifier="bootStrap" created="201111281549" changecount="1">
 <pre></pre>
 </div>
+<div title="LoadRemoteFileThroughProxy" creator="bootStrap" modifier="bootStrap" created="201112120659" tags="systemConfig" changecount="1">
+<pre>/***
+|''Name:''|LoadRemoteFileThroughProxy (previous LoadRemoteFileHijack)|
+|''Description:''|When the TiddlyWiki file is located on the web (view over http) the content of [[SiteProxy]] tiddler is added in front of the file url. If [[SiteProxy]] does not exist &quot;/proxy/&quot; is added. |
+|''Version:''|1.1.0|
+|''Date:''|mar 17, 2007|
+|''Source:''|http://tiddlywiki.bidix.info/#LoadRemoteFileHijack|
+|''Author:''|BidiX (BidiX (at) bidix (dot) info)|
+|''License:''|[[BSD open source license|http://tiddlywiki.bidix.info/#%5B%5BBSD%20open%20source%20license%5D%5D ]]|
+|''~CoreVersion:''|2.2.0|
+***/
+//{{{
+version.extensions.LoadRemoteFileThroughProxy = {
+ major: 1, minor: 1, revision: 0, 
+ date: new Date(&quot;mar 17, 2007&quot;), 
+ source: &quot;http://tiddlywiki.bidix.info/#LoadRemoteFileThroughProxy&quot;};
+
+if (!window.bidix) window.bidix = {}; // bidix namespace
+if (!bidix.core) bidix.core = {};
+
+bidix.core.loadRemoteFile = loadRemoteFile;
+loadRemoteFile = function(url,callback,params)
+{
+ if ((document.location.toString().substr(0,4) == &quot;http&quot;) &amp;&amp; (url.substr(0,4) == &quot;http&quot;)){ 
+ url = store.getTiddlerText(&quot;SiteProxy&quot;, &quot;/proxy/&quot;) + url;
+ }
+ return bidix.core.loadRemoteFile(url,callback,params);
+}
+//}}}
+</pre>
+</div>
 <div title="MainMenu" creator="bootStrap" modifier="bootStrap" created="201111281504" modified="201111281514" tags="boot" changecount="10">
 <pre>[[GS|GettingStarted]]
 @@margin-left:.5em;&lt;&lt;slider chkContents bootContents &quot;/boot »&quot; &quot;Show boot&quot;&gt;&gt;@@
@@ -578,9 +609,647 @@ eb42d4aee7ac3da5cf24df2f0642cb032a8989ae3be081315e33ff9a4a942133
 a9209d111228ce0ff8027ad26ad91510e040943e8111881f9094f4ea21313321
 3b3221333321ad41a1d4f99e1376669d39c2d47dd02da77d440edd72</pre>
 </div>
-<div title="P" creator="bootStrap" modifier="bootStrap" created="201111281505" tags="Decrypt(P)" changecount="1">
-<pre>Encrypted(582184A888A654042705FF65CB43F64019653A05)
-d50471230e9fb4f2e67d36b77e2b21333421e6901a7cf1511365e836c7781e</pre>
+<div title="P" creator="bootStrap" modifier="bootStrap" created="201111281505" modified="201112022140" tags="Decrypt(P)" changecount="4">
+<pre>Encrypted(DA39A3EE5E6B4B0D3255BFEF95601890AFD80709)
+</pre>
+</div>
+<div title="PartTiddlerPlugin" creator="bootStrap" modifier="bootStrap" created="201112022140" tags="systemConfig" changecount="1">
+<pre>/***
+|&lt;html&gt;&lt;a name=&quot;Top&quot;/&gt;&lt;/html&gt;''Name:''|PartTiddlerPlugin|
+|''Version:''|1.0.9 (2007-07-14)|
+|''Source:''|http://tiddlywiki.abego-software.de/#PartTiddlerPlugin|
+|''Author:''|UdoBorkowski (ub [at] abego-software [dot] de)|
+|''Licence:''|[[BSD open source license]]|
+|''CoreVersion:''|2.1.3|
+|''Browser:''|Firefox 1.0.4+; InternetExplorer 6.0|
+!Table of Content&lt;html&gt;&lt;a name=&quot;TOC&quot;/&gt;&lt;/html&gt;
+* &lt;html&gt;&lt;a href=&quot;javascript:;&quot; onclick=&quot;window.scrollAnchorVisible('Description',null, event)&quot;&gt;Description, Syntax&lt;/a&gt;&lt;/html&gt;
+* &lt;html&gt;&lt;a href=&quot;javascript:;&quot; onclick=&quot;window.scrollAnchorVisible('Applications',null, event)&quot;&gt;Applications&lt;/a&gt;&lt;/html&gt;
+** &lt;html&gt;&lt;a href=&quot;javascript:;&quot; onclick=&quot;window.scrollAnchorVisible('LongTiddler',null, event)&quot;&gt;Refering to Paragraphs of a Longer Tiddler&lt;/a&gt;&lt;/html&gt;
+** &lt;html&gt;&lt;a href=&quot;javascript:;&quot; onclick=&quot;window.scrollAnchorVisible('Citation',null, event)&quot;&gt;Citation Index&lt;/a&gt;&lt;/html&gt;
+** &lt;html&gt;&lt;a href=&quot;javascript:;&quot; onclick=&quot;window.scrollAnchorVisible('TableCells',null, event)&quot;&gt;Creating &quot;multi-line&quot; Table Cells&lt;/a&gt;&lt;/html&gt;
+** &lt;html&gt;&lt;a href=&quot;javascript:;&quot; onclick=&quot;window.scrollAnchorVisible('Tabs',null, event)&quot;&gt;Creating Tabs&lt;/a&gt;&lt;/html&gt;
+** &lt;html&gt;&lt;a href=&quot;javascript:;&quot; onclick=&quot;window.scrollAnchorVisible('Sliders',null, event)&quot;&gt;Using Sliders&lt;/a&gt;&lt;/html&gt;
+* &lt;html&gt;&lt;a href=&quot;javascript:;&quot; onclick=&quot;window.scrollAnchorVisible('Revisions',null, event)&quot;&gt;Revision History&lt;/a&gt;&lt;/html&gt;
+* &lt;html&gt;&lt;a href=&quot;javascript:;&quot; onclick=&quot;window.scrollAnchorVisible('Code',null, event)&quot;&gt;Code&lt;/a&gt;&lt;/html&gt;
+!Description&lt;html&gt;&lt;a name=&quot;Description&quot;/&gt;&lt;/html&gt;
+With the {{{&lt;part aPartName&gt; ... &lt;/part&gt;}}} feature you can structure your tiddler text into separate (named) parts. 
+Each part can be referenced as a &quot;normal&quot; tiddler, using the &quot;//tiddlerName//''/''//partName//&quot; syntax (e.g. &quot;About/Features&quot;).  E.g. you may create links to the parts (e.g. {{{[[Quotes/BAX95]]}}} or {{{[[Hobbies|AboutMe/Hobbies]]}}}), use it in {{{&lt;&lt;tiddler...&gt;&gt;}}} or {{{&lt;&lt;tabs...&gt;&gt;}}} macros etc.
+
+
+''Syntax:'' 
+|&gt;|''&lt;part'' //partName// [''hidden''] ''&gt;'' //any tiddler content// ''&lt;/part&gt;''|
+|//partName//|The name of the part. You may reference a part tiddler with the combined tiddler name &quot;//nameOfContainerTidder//''/''//partName//. &lt;&lt;br&gt;&gt;If you use a partName containing spaces you need to quote it (e.g. {{{&quot;Major Overview&quot;}}} or {{{[[Shortcut List]]}}}).|
+|''hidden''|When defined the content of the part is not displayed in the container tiddler. But when the part is explicitly referenced (e.g. in a {{{&lt;&lt;tiddler...&gt;&gt;}}} macro or in a link) the part's content is displayed.|
+|&lt;html&gt;&lt;i&gt;any&amp;nbsp;tiddler&amp;nbsp;content&lt;/i&gt;&lt;/html&gt;|&lt;html&gt;The content of the part.&lt;br&gt;A part can have any content that a &quot;normal&quot; tiddler may have, e.g. you may use all the formattings and macros defined.&lt;/html&gt;|
+|&gt;|~~Syntax formatting: Keywords in ''bold'', optional parts in [...]. 'or' means that exactly one of the two alternatives must exist.~~|
+&lt;html&gt;&lt;sub&gt;&lt;a href=&quot;javascript:;&quot; onclick=&quot;window.scrollAnchorVisible('Top',null, event)&quot;&gt;[Top]&lt;/sub&gt;&lt;/a&gt;&lt;/html&gt;
+
+!Applications&lt;html&gt;&lt;a name=&quot;Applications&quot;/&gt;&lt;/html&gt;
+!!Refering to Paragraphs of a Longer Tiddler&lt;html&gt;&lt;a name=&quot;LongTiddler&quot;/&gt;&lt;/html&gt;
+Assume you have written a long description in a tiddler and now you want to refer to the content of a certain paragraph in that tiddler (e.g. some definition.) Just wrap the text with a ''part'' block, give it a nice name, create a &quot;pretty link&quot; (like {{{[[Discussion Groups|Introduction/DiscussionGroups]]}}}) and you are done.
+
+Notice this complements the approach to first writing a lot of small tiddlers and combine these tiddlers to one larger tiddler in a second step (e.g. using the {{{&lt;&lt;tiddler...&gt;&gt;}}} macro). Using the ''part'' feature you can first write a &quot;classic&quot; (longer) text that can be read &quot;from top to bottom&quot; and later &quot;reuse&quot; parts of this text for some more &quot;non-linear&quot; reading.
+
+&lt;html&gt;&lt;sub&gt;&lt;a href=&quot;javascript:;&quot; onclick=&quot;window.scrollAnchorVisible('Top',null, event)&quot;&gt;[Top]&lt;/sub&gt;&lt;/a&gt;&lt;/html&gt;
+
+!!Citation Index&lt;html&gt;&lt;a name=&quot;Citation&quot;/&gt;&lt;/html&gt;
+Create a tiddler &quot;Citations&quot; that contains your &quot;citations&quot;. 
+Wrap every citation with a part and a proper name. 
+
+''Example''
+{{{
+&lt;part BAX98&gt;Baxter, Ira D. et al: //Clone Detection Using Abstract Syntax Trees.// 
+in //Proc. ICSM//, 1998.&lt;/part&gt;
+
+&lt;part BEL02&gt;Bellon, Stefan: //Vergleich von Techniken zur Erkennung duplizierten Quellcodes.// 
+Thesis, Uni Stuttgart, 2002.&lt;/part&gt;
+
+&lt;part DUC99&gt;Ducasse, Stéfane et al: //A Language Independent Approach for Detecting Duplicated Code.// 
+in //Proc. ICSM//, 1999.&lt;/part&gt;
+}}}
+
+You may now &quot;cite&quot; them just by using a pretty link like {{{[[Citations/BAX98]]}}} or even more pretty, like this {{{[[BAX98|Citations/BAX98]]}}}.
+
+&lt;html&gt;&lt;sub&gt;&lt;a href=&quot;javascript:;&quot; onclick=&quot;window.scrollAnchorVisible('Top',null, event)&quot;&gt;[Top]&lt;/sub&gt;&lt;/a&gt;&lt;/html&gt;
+
+!!Creating &quot;multi-line&quot; Table Cells&lt;html&gt;&lt;a name=&quot;TableCells&quot;/&gt;&lt;/html&gt;
+You may have noticed that it is hard to create table cells with &quot;multi-line&quot; content. E.g. if you want to create a bullet list inside a table cell you cannot just write the bullet list
+{{{
+* Item 1
+* Item 2
+* Item 3
+}}}
+into a table cell (i.e. between the | ... | bars) because every bullet item must start in a new line but all cells of a table row must be in one line.
+
+Using the ''part'' feature this problem can be solved. Just create a hidden part that contains the cells content and use a {{{&lt;&lt;tiddler &gt;&gt;}}} macro to include its content in the table's cell.
+
+''Example''
+{{{
+|!Subject|!Items|
+|subject1|&lt;&lt;tiddler ./Cell1&gt;&gt;|
+|subject2|&lt;&lt;tiddler ./Cell2&gt;&gt;|
+
+&lt;part Cell1 hidden&gt;
+* Item 1
+* Item 2
+* Item 3
+&lt;/part&gt;
+...
+}}}
+
+Notice that inside the {{{&lt;&lt;tiddler ...&gt;&gt;}}} macro you may refer to the &quot;current tiddler&quot; using the &quot;.&quot;.
+
+BTW: The same approach can be used to create bullet lists with items that contain more than one line.
+
+&lt;html&gt;&lt;sub&gt;&lt;a href=&quot;javascript:;&quot; onclick=&quot;window.scrollAnchorVisible('Top',null, event)&quot;&gt;[Top]&lt;/sub&gt;&lt;/a&gt;&lt;/html&gt;
+
+!!Creating Tabs&lt;html&gt;&lt;a name=&quot;Tabs&quot;/&gt;&lt;/html&gt;
+The build-in {{{&lt;&lt;tabs ...&gt;&gt;}}} macro requires that you defined an additional tiddler for every tab it displays. When you want to have &quot;nested&quot; tabs you need to define a tiddler for the &quot;main tab&quot; and one for every tab it contains. I.e. the definition of a set of tabs that is visually displayed at one place is distributed across multiple tiddlers.
+
+With the ''part'' feature you can put the complete definition in one tiddler, making it easier to keep an overview and maintain the tab sets.
+
+''Example''
+The standard tabs at the sidebar are defined by the following eight tiddlers:
+* SideBarTabs
+* TabAll
+* TabMore
+* TabMoreMissing
+* TabMoreOrphans
+* TabMoreShadowed
+* TabTags
+* TabTimeline
+
+Instead of these eight tiddlers one could define the following SideBarTabs tiddler that uses the ''part'' feature:
+{{{
+&lt;&lt;tabs txtMainTab 
+    Timeline Timeline SideBarTabs/Timeline 
+    All 'All tiddlers' SideBarTabs/All 
+    Tags 'All tags' SideBarTabs/Tags 
+    More 'More lists' SideBarTabs/More&gt;&gt;
+&lt;part Timeline hidden&gt;&lt;&lt;timeline&gt;&gt;&lt;/part&gt;
+&lt;part All hidden&gt;&lt;&lt;list all&gt;&gt;&lt;/part&gt;
+&lt;part Tags hidden&gt;&lt;&lt;allTags&gt;&gt;&lt;/part&gt;
+&lt;part More hidden&gt;&lt;&lt;tabs txtMoreTab 
+    Missing 'Missing tiddlers' SideBarTabs/Missing 
+    Orphans 'Orphaned tiddlers' SideBarTabs/Orphans 
+    Shadowed 'Shadowed tiddlers' SideBarTabs/Shadowed&gt;&gt;&lt;/part&gt;
+&lt;part Missing hidden&gt;&lt;&lt;list missing&gt;&gt;&lt;/part&gt;
+&lt;part Orphans hidden&gt;&lt;&lt;list orphans&gt;&gt;&lt;/part&gt;
+&lt;part Shadowed hidden&gt;&lt;&lt;list shadowed&gt;&gt;&lt;/part&gt;
+}}}
+
+Notice that you can easily &quot;overwrite&quot; individual parts in separate tiddlers that have the full name of the part.
+
+E.g. if you don't like the classic timeline tab but only want to see the 100 most recent tiddlers you could create a tiddler &quot;~SideBarTabs/Timeline&quot; with the following content:
+{{{
+&lt;&lt;forEachTiddler 
+		sortBy 'tiddler.modified' descending 
+		write '(index &lt; 100) ? &quot;* [[&quot;+tiddler.title+&quot;]]\n&quot;:&quot;&quot;'&gt;&gt;
+}}}
+&lt;html&gt;&lt;sub&gt;&lt;a href=&quot;javascript:;&quot; onclick=&quot;window.scrollAnchorVisible('Top',null, event)&quot;&gt;[Top]&lt;/sub&gt;&lt;/a&gt;&lt;/html&gt;
+
+!!Using Sliders&lt;html&gt;&lt;a name=&quot;Sliders&quot;/&gt;&lt;/html&gt;
+Very similar to the build-in {{{&lt;&lt;tabs ...&gt;&gt;}}} macro (see above) the {{{&lt;&lt;slider ...&gt;&gt;}}} macro requires that you defined an additional tiddler that holds the content &quot;to be slid&quot;. You can avoid creating this extra tiddler by using the ''part'' feature
+
+''Example''
+In a tiddler &quot;About&quot; we may use the slider to show some details that are documented in the tiddler's &quot;Details&quot; part.
+{{{
+...
+&lt;&lt;slider chkAboutDetails About/Details details &quot;Click here to see more details&quot;&gt;&gt;
+&lt;part Details hidden&gt;
+To give you a better overview ...
+&lt;/part&gt;
+...
+}}}
+
+Notice that putting the content of the slider into the slider's tiddler also has an extra benefit: When you decide you need to edit the content of the slider you can just doubleclick the content, the tiddler opens for editing and you can directly start editing the content (in the part section). In the &quot;old&quot; approach you would doubleclick the tiddler, see that the slider is using tiddler X, have to look for the tiddler X and can finally open it for editing. So using the ''part'' approach results in a much short workflow.
+
+&lt;html&gt;&lt;sub&gt;&lt;a href=&quot;javascript:;&quot; onclick=&quot;window.scrollAnchorVisible('Top',null, event)&quot;&gt;[Top]&lt;/sub&gt;&lt;/a&gt;&lt;/html&gt;
+
+!Revision history&lt;html&gt;&lt;a name=&quot;Revisions&quot;/&gt;&lt;/html&gt;
+* v1.0.9 (2007-07-14)
+** Bugfix: Error when using the SideBarTabs example and switching between &quot;More&quot; and &quot;Shadow&quot;. Thanks to cmari for reporting the issue.
+* v1.0.8 (2007-06-16)
+** Speeding up display of tiddlers containing multiple pard definitions. Thanks to Paco Rivière for reporting the issue.
+** Support &quot;./partName&quot; syntax inside &lt;&lt;tabs ...&gt;&gt; macro
+* v1.0.7 (2007-03-07)
+** Bugfix: &lt;&lt;tiddler &quot;./partName&quot;&gt;&gt; does not always render correctly after a refresh (e.g. like it happens when using the &quot;Include&quot; plugin). Thanks to Morris Gray for reporting the bug.
+* v1.0.6 (2006-11-07)
+** Bugfix: cannot edit tiddler when UploadPlugin by Bidix is installed. Thanks to José Luis González Castro for reporting the bug.
+* v1.0.5 (2006-03-02)
+** Bugfix: Example with multi-line table cells does not work in IE6. Thanks to Paulo Soares for reporting the bug.
+* v1.0.4 (2006-02-28)
+** Bugfix: Shadow tiddlers cannot be edited (in TW 2.0.6). Thanks to Torsten Vanek for reporting the bug.
+* v1.0.3 (2006-02-26)
+** Adapt code to newly introduced Tiddler.prototype.isReadOnly() function (in TW 2.0.6). Thanks to Paulo Soares for reporting the problem.
+* v1.0.2 (2006-02-05)
+** Also allow other macros than the &quot;tiddler&quot; macro use the &quot;.&quot; in the part reference (to refer to &quot;this&quot; tiddler)
+* v1.0.1 (2006-01-27)
+** Added Table of Content for plugin documentation. Thanks to RichCarrillo for suggesting.
+** Bugfix: newReminder plugin does not work when PartTiddler is installed. Thanks to PauloSoares for reporting.
+* v1.0.0 (2006-01-25)
+** initial version
+&lt;html&gt;&lt;sub&gt;&lt;a href=&quot;javascript:;&quot; onclick=&quot;window.scrollAnchorVisible('Top',null, event)&quot;&gt;[Top]&lt;/sub&gt;&lt;/a&gt;&lt;/html&gt;
+
+!Code&lt;html&gt;&lt;a name=&quot;Code&quot;/&gt;&lt;/html&gt;
+&lt;html&gt;&lt;sub&gt;&lt;a href=&quot;javascript:;&quot; onclick=&quot;window.scrollAnchorVisible('Top',null, event)&quot;&gt;[Top]&lt;/sub&gt;&lt;/a&gt;&lt;/html&gt;
+***/
+//{{{
+//============================================================================
+//                           PartTiddlerPlugin
+
+// Ensure that the PartTiddler Plugin is only installed once.
+//
+if (!version.extensions.PartTiddlerPlugin) {
+
+
+
+version.extensions.PartTiddlerPlugin = {
+    major: 1, minor: 0, revision: 9,
+    date: new Date(2007, 6, 14), 
+    type: 'plugin',
+    source: &quot;http://tiddlywiki.abego-software.de/#PartTiddlerPlugin&quot;
+};
+
+if (!window.abego) window.abego = {};
+if (version.major &lt; 2) alertAndThrow(&quot;PartTiddlerPlugin requires TiddlyWiki 2.0 or newer.&quot;);
+
+//============================================================================
+// Common Helpers
+
+// Looks for the next newline, starting at the index-th char of text. 
+//
+// If there are only whitespaces between index and the newline 
+// the index behind the newline is returned, 
+// otherwise (or when no newline is found) index is returned.
+//
+var skipEmptyEndOfLine = function(text, index) {
+	var re = /(\n|[^\s])/g;
+	re.lastIndex = index;
+	var result = re.exec(text);
+	return (result &amp;&amp; text.charAt(result.index) == '\n') 
+			? result.index+1
+			: index;
+}
+
+
+//============================================================================
+// Constants
+
+var partEndOrStartTagRE = /(&lt;\/part&gt;)|(&lt;part(?:\s+)((?:[^&gt;])+)&gt;)/mg;
+var partEndTagREString = &quot;&lt;\\/part&gt;&quot;;
+var partEndTagString = &quot;&lt;/part&gt;&quot;;
+
+//============================================================================
+// Plugin Specific Helpers
+
+// Parse the parameters inside a &lt;part ...&gt; tag and return the result.
+//
+// @return [may be null] {partName: ..., isHidden: ...}
+//
+var parseStartTagParams = function(paramText) {
+	var params = paramText.readMacroParams();
+	if (params.length == 0 || params[0].length == 0) return null;
+	
+	var name = params[0];
+	var paramsIndex = 1;
+	var hidden = false;
+	if (paramsIndex &lt; params.length) {
+		hidden = params[paramsIndex] == &quot;hidden&quot;;
+		paramsIndex++;
+	}
+	
+	return {
+		partName: name, 
+		isHidden: hidden
+	};
+}
+
+// Returns the match to the next (end or start) part tag in the text, 
+// starting the search at startIndex.
+// 
+// When no such tag is found null is returned, otherwise a &quot;Match&quot; is returned:
+// [0]: full match
+// [1]: matched &quot;end&quot; tag (or null when no end tag match)
+// [2]: matched &quot;start&quot; tag (or null when no start tag match)
+// [3]: content of start tag (or null if no start tag match)
+//
+var findNextPartEndOrStartTagMatch = function(text, startIndex) {
+	var re = new RegExp(partEndOrStartTagRE);
+	re.lastIndex = startIndex;
+	var match = re.exec(text);
+	return match;
+}
+
+//============================================================================
+// Formatter
+
+// Process the &lt;part ...&gt; ... &lt;/part&gt; starting at (w.source, w.matchStart) for formatting.
+//
+// @return true if a complete part section (including the end tag) could be processed, false otherwise.
+//
+var handlePartSection = function(w) {
+	var tagMatch = findNextPartEndOrStartTagMatch(w.source, w.matchStart);
+	if (!tagMatch) return false;
+	if (tagMatch.index != w.matchStart || !tagMatch[2]) return false;
+
+	// Parse the start tag parameters
+	var arguments = parseStartTagParams(tagMatch[3]);
+	if (!arguments) return false;
+	
+	// Continue processing
+	var startTagEndIndex = skipEmptyEndOfLine(w.source, tagMatch.index + tagMatch[0].length);
+	var endMatch = findNextPartEndOrStartTagMatch(w.source, startTagEndIndex);
+	if (endMatch &amp;&amp; endMatch[1]) {
+		if (!arguments.isHidden) {
+			w.nextMatch = startTagEndIndex;
+			w.subWikify(w.output,partEndTagREString);
+		}
+		w.nextMatch = skipEmptyEndOfLine(w.source, endMatch.index + endMatch[0].length);
+		
+		return true;
+	}
+	return false;
+}
+
+config.formatters.push( {
+    name: &quot;part&quot;,
+    match: &quot;&lt;part\\s+[^&gt;]+&gt;&quot;,
+	
+	handler: function(w) {
+		if (!handlePartSection(w)) {
+			w.outputText(w.output,w.matchStart,w.matchStart+w.matchLength);
+		}
+	}
+} )
+
+//============================================================================
+// Extend &quot;fetchTiddler&quot; functionality to also recognize &quot;part&quot;s of tiddlers 
+// as tiddlers.
+
+var currentParent = null; // used for the &quot;.&quot; parent (e.g. in the &quot;tiddler&quot; macro)
+
+// Return the match to the first &lt;part ...&gt; tag of the text that has the
+// requrest partName.
+//
+// @return [may be null]
+//
+var findPartStartTagByName = function(text, partName) {
+	var i = 0;
+	
+	while (true) {
+		var tagMatch = findNextPartEndOrStartTagMatch(text, i);
+		if (!tagMatch) return null;
+
+		if (tagMatch[2]) {
+			// Is start tag
+	
+			// Check the name
+			var arguments = parseStartTagParams(tagMatch[3]);
+			if (arguments &amp;&amp; arguments.partName == partName) {
+				return tagMatch;
+			}
+		}
+		i = tagMatch.index+tagMatch[0].length;
+	}
+}
+
+// Return the part &quot;partName&quot; of the given parentTiddler as a &quot;readOnly&quot; Tiddler 
+// object, using fullName as the Tiddler's title. 
+//
+// All remaining properties of the new Tiddler (tags etc.) are inherited from 
+// the parentTiddler.
+// 
+// @return [may be null]
+//
+var getPart = function(parentTiddler, partName, fullName) {
+	var text = parentTiddler.text;
+	var startTag = findPartStartTagByName(text, partName);
+	if (!startTag) return null;
+	
+	var endIndexOfStartTag = skipEmptyEndOfLine(text, startTag.index+startTag[0].length);
+	var indexOfEndTag = text.indexOf(partEndTagString, endIndexOfStartTag);
+
+	if (indexOfEndTag &gt;= 0) {
+		var partTiddlerText = text.substring(endIndexOfStartTag,indexOfEndTag);
+		var partTiddler = new Tiddler();
+		partTiddler.set(
+						fullName,
+						partTiddlerText,
+						parentTiddler.modifier,
+						parentTiddler.modified,
+						parentTiddler.tags,
+						parentTiddler.created);
+		partTiddler.abegoIsPartTiddler = true;
+		return partTiddler;
+	}
+	
+	return null;
+}
+
+// Hijack the store.fetchTiddler to recognize the &quot;part&quot; addresses.
+//
+var hijackFetchTiddler = function() {
+	var oldFetchTiddler = store.fetchTiddler ;
+	store.fetchTiddler = function(title) {
+		var result = oldFetchTiddler.apply(this, arguments);
+		if (!result &amp;&amp; title) {
+			var i = title.lastIndexOf('/');
+			if (i &gt; 0) {
+				var parentName = title.substring(0, i);
+				var partName = title.substring(i+1);
+				var parent = (parentName == &quot;.&quot;) 
+						? store.resolveTiddler(currentParent)
+						: oldFetchTiddler.apply(this, [parentName]);
+				if (parent) {
+					return getPart(parent, partName, parent.title+&quot;/&quot;+partName);
+				}
+			}
+		}
+		return result;	
+	};
+};
+
+// for debugging the plugin is not loaded through the systemConfig mechanism but via a script tag. 
+// At that point in the &quot;store&quot; is not yet defined. In that case hijackFetchTiddler through the restart function.
+// Otherwise hijack now.
+if (!store) {
+	var oldRestartFunc = restart;
+	window.restart = function() {
+		hijackFetchTiddler();
+		oldRestartFunc.apply(this,arguments);
+	};
+} else
+	hijackFetchTiddler();
+
+
+
+
+// The user must not edit a readOnly/partTiddler
+//
+
+config.commands.editTiddler.oldIsReadOnlyFunction = Tiddler.prototype.isReadOnly;
+
+Tiddler.prototype.isReadOnly = function() {
+	// Tiddler.isReadOnly was introduced with TW 2.0.6.
+	// For older version we explicitly check the global readOnly flag
+	if (config.commands.editTiddler.oldIsReadOnlyFunction) {
+		if (config.commands.editTiddler.oldIsReadOnlyFunction.apply(this, arguments)) return true;
+	} else {
+		if (readOnly) return true;
+	}
+
+	return this.abegoIsPartTiddler;
+}
+
+config.commands.editTiddler.handler = function(event,src,title)
+{
+	var t = store.getTiddler(title);
+	// Edit the tiddler if it either is not a tiddler (but a shadowTiddler)
+	// or the tiddler is not readOnly
+	if(!t || !t.abegoIsPartTiddler)
+		{
+		clearMessage();
+		story.displayTiddler(null,title,DEFAULT_EDIT_TEMPLATE);
+		story.focusTiddler(title,&quot;text&quot;);
+		return false;
+		}
+}
+
+// To allow the &quot;./partName&quot; syntax in macros we need to hijack 
+// the invokeMacro to define the &quot;currentParent&quot; while it is running.
+// 
+var oldInvokeMacro = window.invokeMacro;
+function myInvokeMacro(place,macro,params,wikifier,tiddler) {
+	var oldCurrentParent = currentParent;
+	if (tiddler) currentParent = tiddler;
+	try {
+		oldInvokeMacro.apply(this, arguments);
+	} finally {
+		currentParent = oldCurrentParent;
+	}
+}
+window.invokeMacro = myInvokeMacro;
+
+// To correctly support the &quot;./partName&quot; syntax while refreshing we need to hijack 
+// the config.refreshers.tiddlers to define the &quot;currentParent&quot; while it is running.
+// 
+(function() {
+	var oldTiddlerRefresher= config.refreshers.tiddler;
+	config.refreshers.tiddler = function(e,changeList) {
+		var oldCurrentParent = currentParent;
+		try {
+			currentParent = e.getAttribute(&quot;tiddler&quot;);
+			return oldTiddlerRefresher.apply(this,arguments);
+		} finally {
+			currentParent = oldCurrentParent;
+		}
+	};
+})();
+
+// Support &quot;./partName&quot; syntax inside &lt;&lt;tabs ...&gt;&gt; macro
+(function() {
+	var extendRelativeNames = function(e, title) {
+		var nodes = e.getElementsByTagName(&quot;a&quot;);
+		for(var i=0; i&lt;nodes.length; i++) {
+			var node = nodes[i];
+			var s = node.getAttribute(&quot;content&quot;);
+			if (s &amp;&amp; s.indexOf(&quot;./&quot;) == 0)
+				node.setAttribute(&quot;content&quot;,title+s.substr(1));
+		}
+	};
+	var oldHandler = config.macros.tabs.handler;
+	config.macros.tabs.handler = function(place,macroName,params,wikifier,paramString,tiddler) {
+		var result = oldHandler.apply(this,arguments);
+		if (tiddler)
+			extendRelativeNames(place, tiddler.title);
+		return result;
+	};
+})();
+
+// Scroll the anchor anchorName in the viewer of the given tiddler visible.
+// When no tiddler is defined use the tiddler of the target given event is used.
+window.scrollAnchorVisible = function(anchorName, tiddler, evt) {
+	var tiddlerElem = null;
+	if (tiddler) {
+		tiddlerElem = document.getElementById(story.idPrefix + tiddler);
+	}
+	if (!tiddlerElem &amp;&amp; evt) {
+		var target = resolveTarget(evt);
+		tiddlerElem = story.findContainingTiddler(target);
+	}
+	if (!tiddlerElem) return;
+
+	var children = tiddlerElem.getElementsByTagName(&quot;a&quot;);
+	for (var i = 0; i &lt; children.length; i++) {
+		var child = children[i];
+		var name = child.getAttribute(&quot;name&quot;);
+		if (name == anchorName) {
+			var y = findPosY(child);
+			window.scrollTo(0,y);
+			return;
+		}
+	}
+}
+
+} // of &quot;install only once&quot;
+//}}}
+
+/***
+&lt;html&gt;&lt;sub&gt;&lt;a href=&quot;javascript:;&quot; onclick=&quot;scrollAnchorVisible('Top',null, event)&quot;&gt;[Top]&lt;/sub&gt;&lt;/a&gt;&lt;/html&gt;
+
+!Licence and Copyright
+Copyright (c) abego Software ~GmbH, 2006 ([[www.abego-software.de|http://www.abego-software.de]])
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer.
+
+Redistributions in binary form must reproduce the above copyright notice, this
+list of conditions and the following disclaimer in the documentation and/or other
+materials provided with the distribution.
+
+Neither the name of abego Software nor the names of its contributors may be
+used to endorse or promote products derived from this software without specific
+prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+DAMAGE.
+
+&lt;html&gt;&lt;sub&gt;&lt;a href=&quot;javascript:;&quot; onclick=&quot;scrollAnchorVisible('Top',null, event)&quot;&gt;[Top]&lt;/sub&gt;&lt;/a&gt;&lt;/html&gt;
+***/
+</pre>
+</div>
+<div title="PasswordOptionsPlugin" creator="bootStrap" modifier="bootStrap" created="201112120700" tags="systemConfig" changecount="1">
+<pre>/***
+|''Name:''|PasswordOptionPlugin|
+|''Description:''|Extends TiddlyWiki options with non encrypted password option.|
+|''Version:''|1.0.2|
+|''Date:''|Apr 19, 2007|
+|''Source:''|http://tiddlywiki.bidix.info/#PasswordOptionPlugin|
+|''Author:''|BidiX (BidiX (at) bidix (dot) info)|
+|''License:''|[[BSD open source license|http://tiddlywiki.bidix.info/#%5B%5BBSD%20open%20source%20license%5D%5D ]]|
+|''~CoreVersion:''|2.2.0 (Beta 5)|
+***/
+//{{{
+version.extensions.PasswordOptionPlugin = {
+	major: 1, minor: 0, revision: 2, 
+	date: new Date(&quot;Apr 19, 2007&quot;),
+	source: 'http://tiddlywiki.bidix.info/#PasswordOptionPlugin',
+	author: 'BidiX (BidiX (at) bidix (dot) info',
+	license: '[[BSD open source license|http://tiddlywiki.bidix.info/#%5B%5BBSD%20open%20source%20license%5D%5D]]',
+	coreVersion: '2.2.0 (Beta 5)'
+};
+
+config.macros.option.passwordCheckboxLabel = &quot;Save this password on this computer&quot;;
+config.macros.option.passwordInputType = &quot;password&quot;; // password | text
+setStylesheet(&quot;.pasOptionInput {width: 11em;}\n&quot;,&quot;passwordInputTypeStyle&quot;);
+
+merge(config.macros.option.types, {
+	'pas': {
+		elementType: &quot;input&quot;,
+		valueField: &quot;value&quot;,
+		eventName: &quot;onkeyup&quot;,
+		className: &quot;pasOptionInput&quot;,
+		typeValue: config.macros.option.passwordInputType,
+		create: function(place,type,opt,className,desc) {
+			// password field
+			config.macros.option.genericCreate(place,'pas',opt,className,desc);
+			// checkbox linked with this password &quot;save this password on this computer&quot;
+			config.macros.option.genericCreate(place,'chk','chk'+opt,className,desc);			
+			// text savePasswordCheckboxLabel
+			place.appendChild(document.createTextNode(config.macros.option.passwordCheckboxLabel));
+		},
+		onChange: config.macros.option.genericOnChange
+	}
+});
+
+merge(config.optionHandlers['chk'], {
+	get: function(name) {
+		// is there an option linked with this chk ?
+		var opt = name.substr(3);
+		if (config.options[opt]) 
+			saveOptionCookie(opt);
+		return config.options[name] ? &quot;true&quot; : &quot;false&quot;;
+	}
+});
+
+merge(config.optionHandlers, {
+	'pas': {
+ 		get: function(name) {
+			if (config.options[&quot;chk&quot;+name]) {
+				return encodeCookie(config.options[name].toString());
+			} else {
+				return &quot;&quot;;
+			}
+		},
+		set: function(name,value) {config.options[name] = decodeCookie(value);}
+	}
+});
+
+// need to reload options to load passwordOptions
+loadOptionsCookie();
+
+/*
+if (!config.options['pasPassword'])
+	config.options['pasPassword'] = '';
+
+merge(config.optionsDesc,{
+		pasPassword: &quot;Test password&quot;
+	});
+*/
+//}}}</pre>
 </div>
 <div title="SiteSubtitle" creator="bootStrap" modifier="bootStrap" created="201111281503" modified="201111281548" changecount="3">
 <pre>info on github</pre>
@@ -1318,6 +1987,632 @@ function unescCtrlCh(str) {  // unescape potentially problematic nulls and contr
 }
 
 //}}}
+</pre>
+</div>
+<div title="TspotSetupPlugin" creator="bootStrap" modifier="bootStrap" created="201112120700" tags="systemConfig" changecount="1">
+<pre>/***
+Description: Contains the stuff you need to use Tiddlyspot
+Note, you also need UploadPlugin, PasswordOptionPlugin and LoadRemoteFileThroughProxy
+from http://tiddlywiki.bidix.info for a complete working Tiddlyspot site.
+***/
+//{{{
+
+// edit this if you are migrating sites or retrofitting an existing TW
+config.tiddlyspotSiteId = 'bootstrap';
+
+// make it so you can by default see edit controls via http
+config.options.chkHttpReadOnly = false;
+window.readOnly = false; // make sure of it (for tw 2.2)
+window.showBackstage = true; // show backstage too
+
+// disable autosave in d3
+if (window.location.protocol != &quot;file:&quot;)
+	config.options.chkGTDLazyAutoSave = false;
+
+// tweak shadow tiddlers to add upload button, password entry box etc
+with (config.shadowTiddlers) {
+	SiteUrl = 'http://'+config.tiddlyspotSiteId+'.tiddlyspot.com';
+	SideBarOptions = SideBarOptions.replace(/(&lt;&lt;saveChanges&gt;&gt;)/,&quot;$1&lt;&lt;tiddler TspotSidebar&gt;&gt;&quot;);
+	OptionsPanel = OptionsPanel.replace(/^/,&quot;&lt;&lt;tiddler TspotOptions&gt;&gt;&quot;);
+	DefaultTiddlers = DefaultTiddlers.replace(/^/,&quot;[[WelcomeToTiddlyspot]] &quot;);
+	MainMenu = MainMenu.replace(/^/,&quot;[[WelcomeToTiddlyspot]] &quot;);
+}
+
+// create some shadow tiddler content
+merge(config.shadowTiddlers,{
+
+'TspotOptions':[
+ &quot;tiddlyspot password:&quot;,
+ &quot;&lt;&lt;option pasUploadPassword&gt;&gt;&quot;,
+ &quot;&quot;
+].join(&quot;\n&quot;),
+
+'TspotControls':[
+ &quot;| tiddlyspot password:|&lt;&lt;option pasUploadPassword&gt;&gt;|&quot;,
+ &quot;| site management:|&lt;&lt;upload http://&quot; + config.tiddlyspotSiteId + &quot;.tiddlyspot.com/store.cgi index.html . .  &quot; + config.tiddlyspotSiteId + &quot;&gt;&gt;//(requires tiddlyspot password)//&lt;br&gt;[[control panel|http://&quot; + config.tiddlyspotSiteId + &quot;.tiddlyspot.com/controlpanel]], [[download (go offline)|http://&quot; + config.tiddlyspotSiteId + &quot;.tiddlyspot.com/download]]|&quot;,
+ &quot;| links:|[[tiddlyspot.com|http://tiddlyspot.com/]], [[FAQs|http://faq.tiddlyspot.com/]], [[blog|http://tiddlyspot.blogspot.com/]], email [[support|mailto:support@tiddlyspot.com]] &amp; [[feedback|mailto:feedback@tiddlyspot.com]], [[donate|http://tiddlyspot.com/?page=donate]]|&quot;
+].join(&quot;\n&quot;),
+
+'WelcomeToTiddlyspot':[
+ &quot;This document is a ~TiddlyWiki from tiddlyspot.com.  A ~TiddlyWiki is an electronic notebook that is great for managing todo lists, personal information, and all sorts of things.&quot;,
+ &quot;&quot;,
+ &quot;@@font-weight:bold;font-size:1.3em;color:#444; //What now?// &amp;nbsp;&amp;nbsp;@@ Before you can save any changes, you need to enter your password in the form below.  Then configure privacy and other site settings at your [[control panel|http://&quot; + config.tiddlyspotSiteId + &quot;.tiddlyspot.com/controlpanel]] (your control panel username is //&quot; + config.tiddlyspotSiteId + &quot;//).&quot;,
+ &quot;&lt;&lt;tiddler TspotControls&gt;&gt;&quot;,
+ &quot;See also GettingStarted.&quot;,
+ &quot;&quot;,
+ &quot;@@font-weight:bold;font-size:1.3em;color:#444; //Working online// &amp;nbsp;&amp;nbsp;@@ You can edit this ~TiddlyWiki right now, and save your changes using the \&quot;save to web\&quot; button in the column on the right.&quot;,
+ &quot;&quot;,
+ &quot;@@font-weight:bold;font-size:1.3em;color:#444; //Working offline// &amp;nbsp;&amp;nbsp;@@ A fully functioning copy of this ~TiddlyWiki can be saved onto your hard drive or USB stick.  You can make changes and save them locally without being connected to the Internet.  When you're ready to sync up again, just click \&quot;upload\&quot; and your ~TiddlyWiki will be saved back to tiddlyspot.com.&quot;,
+ &quot;&quot;,
+ &quot;@@font-weight:bold;font-size:1.3em;color:#444; //Help!// &amp;nbsp;&amp;nbsp;@@ Find out more about ~TiddlyWiki at [[TiddlyWiki.com|http://tiddlywiki.com]].  Also visit [[TiddlyWiki.org|http://tiddlywiki.org]] for documentation on learning and using ~TiddlyWiki. New users are especially welcome on the [[TiddlyWiki mailing list|http://groups.google.com/group/TiddlyWiki]], which is an excellent place to ask questions and get help.  If you have a tiddlyspot related problem email [[tiddlyspot support|mailto:support@tiddlyspot.com]].&quot;,
+ &quot;&quot;,
+ &quot;@@font-weight:bold;font-size:1.3em;color:#444; //Enjoy :)// &amp;nbsp;&amp;nbsp;@@ We hope you like using your tiddlyspot.com site.  Please email [[feedback@tiddlyspot.com|mailto:feedback@tiddlyspot.com]] with any comments or suggestions.&quot;
+].join(&quot;\n&quot;),
+
+'TspotSidebar':[
+ &quot;&lt;&lt;upload http://&quot; + config.tiddlyspotSiteId + &quot;.tiddlyspot.com/store.cgi index.html . .  &quot; + config.tiddlyspotSiteId + &quot;&gt;&gt;&lt;html&gt;&lt;a href='http://&quot; + config.tiddlyspotSiteId + &quot;.tiddlyspot.com/download' class='button'&gt;download&lt;/a&gt;&lt;/html&gt;&quot;
+].join(&quot;\n&quot;)
+
+});
+//}}}
+</pre>
+</div>
+<div title="UploadLog" modifier="bootStrap" created="201112120712" modified="201112120712">
+<pre>| !date | !user | !location | !storeUrl | !uploadDir | !toFilename | !backupdir | !origin |
+| 11/12/2011 23:12:34 | bootStrap | [[bootstrap.html|file:///home/x/views/git/Hello-World/bootstrap.html]] | [[store.cgi|http://bootstrap.tiddlyspot.com/store.cgi]] | . | [[index.html | http://bootstrap.tiddlyspot.com/index.html]] | . |</pre>
+</div>
+<div title="UploadPlugin" creator="bootStrap" modifier="bootStrap" created="201112120701" tags="systemConfig" changecount="1">
+<pre>/***
+|''Name:''|UploadPlugin|
+|''Description:''|Save to web a TiddlyWiki|
+|''Version:''|4.1.3|
+|''Date:''|Feb 24, 2008|
+|''Source:''|http://tiddlywiki.bidix.info/#UploadPlugin|
+|''Documentation:''|http://tiddlywiki.bidix.info/#UploadPluginDoc|
+|''Author:''|BidiX (BidiX (at) bidix (dot) info)|
+|''License:''|[[BSD open source license|http://tiddlywiki.bidix.info/#%5B%5BBSD%20open%20source%20license%5D%5D ]]|
+|''~CoreVersion:''|2.2.0|
+|''Requires:''|PasswordOptionPlugin|
+***/
+//{{{
+version.extensions.UploadPlugin = {
+	major: 4, minor: 1, revision: 3,
+	date: new Date(&quot;Feb 24, 2008&quot;),
+	source: 'http://tiddlywiki.bidix.info/#UploadPlugin',
+	author: 'BidiX (BidiX (at) bidix (dot) info',
+	coreVersion: '2.2.0'
+};
+
+//
+// Environment
+//
+
+if (!window.bidix) window.bidix = {}; // bidix namespace
+bidix.debugMode = false;	// true to activate both in Plugin and UploadService
+	
+//
+// Upload Macro
+//
+
+config.macros.upload = {
+// default values
+	defaultBackupDir: '',	//no backup
+	defaultStoreScript: &quot;store.php&quot;,
+	defaultToFilename: &quot;index.html&quot;,
+	defaultUploadDir: &quot;.&quot;,
+	authenticateUser: true	// UploadService Authenticate User
+};
+	
+config.macros.upload.label = {
+	promptOption: &quot;Save and Upload this TiddlyWiki with UploadOptions&quot;,
+	promptParamMacro: &quot;Save and Upload this TiddlyWiki in %0&quot;,
+	saveLabel: &quot;save to web&quot;, 
+	saveToDisk: &quot;save to disk&quot;,
+	uploadLabel: &quot;upload&quot;	
+};
+
+config.macros.upload.messages = {
+	noStoreUrl: &quot;No store URL in parmeters or options&quot;,
+	usernameOrPasswordMissing: &quot;Username or password missing&quot;
+};
+
+config.macros.upload.handler = function(place,macroName,params) {
+	if (readOnly)
+		return;
+	var label;
+	if (document.location.toString().substr(0,4) == &quot;http&quot;) 
+		label = this.label.saveLabel;
+	else
+		label = this.label.uploadLabel;
+	var prompt;
+	if (params[0]) {
+		prompt = this.label.promptParamMacro.toString().format([this.destFile(params[0], 
+			(params[1] ? params[1]:bidix.basename(window.location.toString())), params[3])]);
+	} else {
+		prompt = this.label.promptOption;
+	}
+	createTiddlyButton(place, label, prompt, function() {config.macros.upload.action(params);}, null, null, this.accessKey);
+};
+
+config.macros.upload.action = function(params)
+{
+		// for missing macro parameter set value from options
+		if (!params) params = {};
+		var storeUrl = params[0] ? params[0] : config.options.txtUploadStoreUrl;
+		var toFilename = params[1] ? params[1] : config.options.txtUploadFilename;
+		var backupDir = params[2] ? params[2] : config.options.txtUploadBackupDir;
+		var uploadDir = params[3] ? params[3] : config.options.txtUploadDir;
+		var username = params[4] ? params[4] : config.options.txtUploadUserName;
+		var password = config.options.pasUploadPassword; // for security reason no password as macro parameter	
+		// for still missing parameter set default value
+		if ((!storeUrl) &amp;&amp; (document.location.toString().substr(0,4) == &quot;http&quot;)) 
+			storeUrl = bidix.dirname(document.location.toString())+'/'+config.macros.upload.defaultStoreScript;
+		if (storeUrl.substr(0,4) != &quot;http&quot;)
+			storeUrl = bidix.dirname(document.location.toString()) +'/'+ storeUrl;
+		if (!toFilename)
+			toFilename = bidix.basename(window.location.toString());
+		if (!toFilename)
+			toFilename = config.macros.upload.defaultToFilename;
+		if (!uploadDir)
+			uploadDir = config.macros.upload.defaultUploadDir;
+		if (!backupDir)
+			backupDir = config.macros.upload.defaultBackupDir;
+		// report error if still missing
+		if (!storeUrl) {
+			alert(config.macros.upload.messages.noStoreUrl);
+			clearMessage();
+			return false;
+		}
+		if (config.macros.upload.authenticateUser &amp;&amp; (!username || !password)) {
+			alert(config.macros.upload.messages.usernameOrPasswordMissing);
+			clearMessage();
+			return false;
+		}
+		bidix.upload.uploadChanges(false,null,storeUrl, toFilename, uploadDir, backupDir, username, password); 
+		return false; 
+};
+
+config.macros.upload.destFile = function(storeUrl, toFilename, uploadDir) 
+{
+	if (!storeUrl)
+		return null;
+		var dest = bidix.dirname(storeUrl);
+		if (uploadDir &amp;&amp; uploadDir != '.')
+			dest = dest + '/' + uploadDir;
+		dest = dest + '/' + toFilename;
+	return dest;
+};
+
+//
+// uploadOptions Macro
+//
+
+config.macros.uploadOptions = {
+	handler: function(place,macroName,params) {
+		var wizard = new Wizard();
+		wizard.createWizard(place,this.wizardTitle);
+		wizard.addStep(this.step1Title,this.step1Html);
+		var markList = wizard.getElement(&quot;markList&quot;);
+		var listWrapper = document.createElement(&quot;div&quot;);
+		markList.parentNode.insertBefore(listWrapper,markList);
+		wizard.setValue(&quot;listWrapper&quot;,listWrapper);
+		this.refreshOptions(listWrapper,false);
+		var uploadCaption;
+		if (document.location.toString().substr(0,4) == &quot;http&quot;) 
+			uploadCaption = config.macros.upload.label.saveLabel;
+		else
+			uploadCaption = config.macros.upload.label.uploadLabel;
+		
+		wizard.setButtons([
+				{caption: uploadCaption, tooltip: config.macros.upload.label.promptOption, 
+					onClick: config.macros.upload.action},
+				{caption: this.cancelButton, tooltip: this.cancelButtonPrompt, onClick: this.onCancel}
+				
+			]);
+	},
+	options: [
+		&quot;txtUploadUserName&quot;,
+		&quot;pasUploadPassword&quot;,
+		&quot;txtUploadStoreUrl&quot;,
+		&quot;txtUploadDir&quot;,
+		&quot;txtUploadFilename&quot;,
+		&quot;txtUploadBackupDir&quot;,
+		&quot;chkUploadLog&quot;,
+		&quot;txtUploadLogMaxLine&quot;		
+	],
+	refreshOptions: function(listWrapper) {
+		var opts = [];
+		for(i=0; i&lt;this.options.length; i++) {
+			var opt = {};
+			opts.push();
+			opt.option = &quot;&quot;;
+			n = this.options[i];
+			opt.name = n;
+			opt.lowlight = !config.optionsDesc[n];
+			opt.description = opt.lowlight ? this.unknownDescription : config.optionsDesc[n];
+			opts.push(opt);
+		}
+		var listview = ListView.create(listWrapper,opts,this.listViewTemplate);
+		for(n=0; n&lt;opts.length; n++) {
+			var type = opts[n].name.substr(0,3);
+			var h = config.macros.option.types[type];
+			if (h &amp;&amp; h.create) {
+				h.create(opts[n].colElements['option'],type,opts[n].name,opts[n].name,&quot;no&quot;);
+			}
+		}
+		
+	},
+	onCancel: function(e)
+	{
+		backstage.switchTab(null);
+		return false;
+	},
+	
+	wizardTitle: &quot;Upload with options&quot;,
+	step1Title: &quot;These options are saved in cookies in your browser&quot;,
+	step1Html: &quot;&lt;input type='hidden' name='markList'&gt;&lt;/input&gt;&lt;br&gt;&quot;,
+	cancelButton: &quot;Cancel&quot;,
+	cancelButtonPrompt: &quot;Cancel prompt&quot;,
+	listViewTemplate: {
+		columns: [
+			{name: 'Description', field: 'description', title: &quot;Description&quot;, type: 'WikiText'},
+			{name: 'Option', field: 'option', title: &quot;Option&quot;, type: 'String'},
+			{name: 'Name', field: 'name', title: &quot;Name&quot;, type: 'String'}
+			],
+		rowClasses: [
+			{className: 'lowlight', field: 'lowlight'} 
+			]}
+};
+
+//
+// upload functions
+//
+
+if (!bidix.upload) bidix.upload = {};
+
+if (!bidix.upload.messages) bidix.upload.messages = {
+	//from saving
+	invalidFileError: &quot;The original file '%0' does not appear to be a valid TiddlyWiki&quot;,
+	backupSaved: &quot;Backup saved&quot;,
+	backupFailed: &quot;Failed to upload backup file&quot;,
+	rssSaved: &quot;RSS feed uploaded&quot;,
+	rssFailed: &quot;Failed to upload RSS feed file&quot;,
+	emptySaved: &quot;Empty template uploaded&quot;,
+	emptyFailed: &quot;Failed to upload empty template file&quot;,
+	mainSaved: &quot;Main TiddlyWiki file uploaded&quot;,
+	mainFailed: &quot;Failed to upload main TiddlyWiki file. Your changes have not been saved&quot;,
+	//specific upload
+	loadOriginalHttpPostError: &quot;Can't get original file&quot;,
+	aboutToSaveOnHttpPost: 'About to upload on %0 ...',
+	storePhpNotFound: &quot;The store script '%0' was not found.&quot;
+};
+
+bidix.upload.uploadChanges = function(onlyIfDirty,tiddlers,storeUrl,toFilename,uploadDir,backupDir,username,password)
+{
+	var callback = function(status,uploadParams,original,url,xhr) {
+		if (!status) {
+			displayMessage(bidix.upload.messages.loadOriginalHttpPostError);
+			return;
+		}
+		if (bidix.debugMode) 
+			alert(original.substr(0,500)+&quot;\n...&quot;);
+		// Locate the storeArea div's 
+		var posDiv = locateStoreArea(original);
+		if((posDiv[0] == -1) || (posDiv[1] == -1)) {
+			alert(config.messages.invalidFileError.format([localPath]));
+			return;
+		}
+		bidix.upload.uploadRss(uploadParams,original,posDiv);
+	};
+	
+	if(onlyIfDirty &amp;&amp; !store.isDirty())
+		return;
+	clearMessage();
+	// save on localdisk ?
+	if (document.location.toString().substr(0,4) == &quot;file&quot;) {
+		var path = document.location.toString();
+		var localPath = getLocalPath(path);
+		saveChanges();
+	}
+	// get original
+	var uploadParams = new Array(storeUrl,toFilename,uploadDir,backupDir,username,password);
+	var originalPath = document.location.toString();
+	// If url is a directory : add index.html
+	if (originalPath.charAt(originalPath.length-1) == &quot;/&quot;)
+		originalPath = originalPath + &quot;index.html&quot;;
+	var dest = config.macros.upload.destFile(storeUrl,toFilename,uploadDir);
+	var log = new bidix.UploadLog();
+	log.startUpload(storeUrl, dest, uploadDir,  backupDir);
+	displayMessage(bidix.upload.messages.aboutToSaveOnHttpPost.format([dest]));
+	if (bidix.debugMode) 
+		alert(&quot;about to execute Http - GET on &quot;+originalPath);
+	var r = doHttp(&quot;GET&quot;,originalPath,null,null,username,password,callback,uploadParams,null);
+	if (typeof r == &quot;string&quot;)
+		displayMessage(r);
+	return r;
+};
+
+bidix.upload.uploadRss = function(uploadParams,original,posDiv) 
+{
+	var callback = function(status,params,responseText,url,xhr) {
+		if(status) {
+			var destfile = responseText.substring(responseText.indexOf(&quot;destfile:&quot;)+9,responseText.indexOf(&quot;\n&quot;, responseText.indexOf(&quot;destfile:&quot;)));
+			displayMessage(bidix.upload.messages.rssSaved,bidix.dirname(url)+'/'+destfile);
+			bidix.upload.uploadMain(params[0],params[1],params[2]);
+		} else {
+			displayMessage(bidix.upload.messages.rssFailed);			
+		}
+	};
+	// do uploadRss
+	if(config.options.chkGenerateAnRssFeed) {
+		var rssPath = uploadParams[1].substr(0,uploadParams[1].lastIndexOf(&quot;.&quot;)) + &quot;.xml&quot;;
+		var rssUploadParams = new Array(uploadParams[0],rssPath,uploadParams[2],'',uploadParams[4],uploadParams[5]);
+		var rssString = generateRss();
+		// no UnicodeToUTF8 conversion needed when location is &quot;file&quot; !!!
+		if (document.location.toString().substr(0,4) != &quot;file&quot;)
+			rssString = convertUnicodeToUTF8(rssString);	
+		bidix.upload.httpUpload(rssUploadParams,rssString,callback,Array(uploadParams,original,posDiv));
+	} else {
+		bidix.upload.uploadMain(uploadParams,original,posDiv);
+	}
+};
+
+bidix.upload.uploadMain = function(uploadParams,original,posDiv) 
+{
+	var callback = function(status,params,responseText,url,xhr) {
+		var log = new bidix.UploadLog();
+		if(status) {
+			// if backupDir specified
+			if ((params[3]) &amp;&amp; (responseText.indexOf(&quot;backupfile:&quot;) &gt; -1))  {
+				var backupfile = responseText.substring(responseText.indexOf(&quot;backupfile:&quot;)+11,responseText.indexOf(&quot;\n&quot;, responseText.indexOf(&quot;backupfile:&quot;)));
+				displayMessage(bidix.upload.messages.backupSaved,bidix.dirname(url)+'/'+backupfile);
+			}
+			var destfile = responseText.substring(responseText.indexOf(&quot;destfile:&quot;)+9,responseText.indexOf(&quot;\n&quot;, responseText.indexOf(&quot;destfile:&quot;)));
+			displayMessage(bidix.upload.messages.mainSaved,bidix.dirname(url)+'/'+destfile);
+			store.setDirty(false);
+			log.endUpload(&quot;ok&quot;);
+		} else {
+			alert(bidix.upload.messages.mainFailed);
+			displayMessage(bidix.upload.messages.mainFailed);
+			log.endUpload(&quot;failed&quot;);			
+		}
+	};
+	// do uploadMain
+	var revised = bidix.upload.updateOriginal(original,posDiv);
+	bidix.upload.httpUpload(uploadParams,revised,callback,uploadParams);
+};
+
+bidix.upload.httpUpload = function(uploadParams,data,callback,params)
+{
+	var localCallback = function(status,params,responseText,url,xhr) {
+		url = (url.indexOf(&quot;nocache=&quot;) &lt; 0 ? url : url.substring(0,url.indexOf(&quot;nocache=&quot;)-1));
+		if (xhr.status == 404)
+			alert(bidix.upload.messages.storePhpNotFound.format([url]));
+		if ((bidix.debugMode) || (responseText.indexOf(&quot;Debug mode&quot;) &gt;= 0 )) {
+			alert(responseText);
+			if (responseText.indexOf(&quot;Debug mode&quot;) &gt;= 0 )
+				responseText = responseText.substring(responseText.indexOf(&quot;\n\n&quot;)+2);
+		} else if (responseText.charAt(0) != '0') 
+			alert(responseText);
+		if (responseText.charAt(0) != '0')
+			status = null;
+		callback(status,params,responseText,url,xhr);
+	};
+	// do httpUpload
+	var boundary = &quot;---------------------------&quot;+&quot;AaB03x&quot;;	
+	var uploadFormName = &quot;UploadPlugin&quot;;
+	// compose headers data
+	var sheader = &quot;&quot;;
+	sheader += &quot;--&quot; + boundary + &quot;\r\nContent-disposition: form-data; name=\&quot;&quot;;
+	sheader += uploadFormName +&quot;\&quot;\r\n\r\n&quot;;
+	sheader += &quot;backupDir=&quot;+uploadParams[3] +
+				&quot;;user=&quot; + uploadParams[4] +
+				&quot;;password=&quot; + uploadParams[5] +
+				&quot;;uploaddir=&quot; + uploadParams[2];
+	if (bidix.debugMode)
+		sheader += &quot;;debug=1&quot;;
+	sheader += &quot;;;\r\n&quot;; 
+	sheader += &quot;\r\n&quot; + &quot;--&quot; + boundary + &quot;\r\n&quot;;
+	sheader += &quot;Content-disposition: form-data; name=\&quot;userfile\&quot;; filename=\&quot;&quot;+uploadParams[1]+&quot;\&quot;\r\n&quot;;
+	sheader += &quot;Content-Type: text/html;charset=UTF-8&quot; + &quot;\r\n&quot;;
+	sheader += &quot;Content-Length: &quot; + data.length + &quot;\r\n\r\n&quot;;
+	// compose trailer data
+	var strailer = new String();
+	strailer = &quot;\r\n--&quot; + boundary + &quot;--\r\n&quot;;
+	data = sheader + data + strailer;
+	if (bidix.debugMode) alert(&quot;about to execute Http - POST on &quot;+uploadParams[0]+&quot;\n with \n&quot;+data.substr(0,500)+ &quot; ... &quot;);
+	var r = doHttp(&quot;POST&quot;,uploadParams[0],data,&quot;multipart/form-data; ;charset=UTF-8; boundary=&quot;+boundary,uploadParams[4],uploadParams[5],localCallback,params,null);
+	if (typeof r == &quot;string&quot;)
+		displayMessage(r);
+	return r;
+};
+
+// same as Saving's updateOriginal but without convertUnicodeToUTF8 calls
+bidix.upload.updateOriginal = function(original, posDiv)
+{
+	if (!posDiv)
+		posDiv = locateStoreArea(original);
+	if((posDiv[0] == -1) || (posDiv[1] == -1)) {
+		alert(config.messages.invalidFileError.format([localPath]));
+		return;
+	}
+	var revised = original.substr(0,posDiv[0] + startSaveArea.length) + &quot;\n&quot; +
+				store.allTiddlersAsHtml() + &quot;\n&quot; +
+				original.substr(posDiv[1]);
+	var newSiteTitle = getPageTitle().htmlEncode();
+	revised = revised.replaceChunk(&quot;&lt;title&quot;+&quot;&gt;&quot;,&quot;&lt;/title&quot;+&quot;&gt;&quot;,&quot; &quot; + newSiteTitle + &quot; &quot;);
+	revised = updateMarkupBlock(revised,&quot;PRE-HEAD&quot;,&quot;MarkupPreHead&quot;);
+	revised = updateMarkupBlock(revised,&quot;POST-HEAD&quot;,&quot;MarkupPostHead&quot;);
+	revised = updateMarkupBlock(revised,&quot;PRE-BODY&quot;,&quot;MarkupPreBody&quot;);
+	revised = updateMarkupBlock(revised,&quot;POST-SCRIPT&quot;,&quot;MarkupPostBody&quot;);
+	return revised;
+};
+
+//
+// UploadLog
+// 
+// config.options.chkUploadLog :
+//		false : no logging
+//		true : logging
+// config.options.txtUploadLogMaxLine :
+//		-1 : no limit
+//      0 :  no Log lines but UploadLog is still in place
+//		n :  the last n lines are only kept
+//		NaN : no limit (-1)
+
+bidix.UploadLog = function() {
+	if (!config.options.chkUploadLog) 
+		return; // this.tiddler = null
+	this.tiddler = store.getTiddler(&quot;UploadLog&quot;);
+	if (!this.tiddler) {
+		this.tiddler = new Tiddler();
+		this.tiddler.title = &quot;UploadLog&quot;;
+		this.tiddler.text = &quot;| !date | !user | !location | !storeUrl | !uploadDir | !toFilename | !backupdir | !origin |&quot;;
+		this.tiddler.created = new Date();
+		this.tiddler.modifier = config.options.txtUserName;
+		this.tiddler.modified = new Date();
+		store.addTiddler(this.tiddler);
+	}
+	return this;
+};
+
+bidix.UploadLog.prototype.addText = function(text) {
+	if (!this.tiddler)
+		return;
+	// retrieve maxLine when we need it
+	var maxLine = parseInt(config.options.txtUploadLogMaxLine,10);
+	if (isNaN(maxLine))
+		maxLine = -1;
+	// add text
+	if (maxLine != 0) 
+		this.tiddler.text = this.tiddler.text + text;
+	// Trunck to maxLine
+	if (maxLine &gt;= 0) {
+		var textArray = this.tiddler.text.split('\n');
+		if (textArray.length &gt; maxLine + 1)
+			textArray.splice(1,textArray.length-1-maxLine);
+			this.tiddler.text = textArray.join('\n');		
+	}
+	// update tiddler fields
+	this.tiddler.modifier = config.options.txtUserName;
+	this.tiddler.modified = new Date();
+	store.addTiddler(this.tiddler);
+	// refresh and notifiy for immediate update
+	story.refreshTiddler(this.tiddler.title);
+	store.notify(this.tiddler.title, true);
+};
+
+bidix.UploadLog.prototype.startUpload = function(storeUrl, toFilename, uploadDir,  backupDir) {
+	if (!this.tiddler)
+		return;
+	var now = new Date();
+	var text = &quot;\n| &quot;;
+	var filename = bidix.basename(document.location.toString());
+	if (!filename) filename = '/';
+	text += now.formatString(&quot;0DD/0MM/YYYY 0hh:0mm:0ss&quot;) +&quot; | &quot;;
+	text += config.options.txtUserName + &quot; | &quot;;
+	text += &quot;[[&quot;+filename+&quot;|&quot;+location + &quot;]] |&quot;;
+	text += &quot; [[&quot; + bidix.basename(storeUrl) + &quot;|&quot; + storeUrl + &quot;]] | &quot;;
+	text += uploadDir + &quot; | &quot;;
+	text += &quot;[[&quot; + bidix.basename(toFilename) + &quot; | &quot; +toFilename + &quot;]] | &quot;;
+	text += backupDir + &quot; |&quot;;
+	this.addText(text);
+};
+
+bidix.UploadLog.prototype.endUpload = function(status) {
+	if (!this.tiddler)
+		return;
+	this.addText(&quot; &quot;+status+&quot; |&quot;);
+};
+
+//
+// Utilities
+// 
+
+bidix.checkPlugin = function(plugin, major, minor, revision) {
+	var ext = version.extensions[plugin];
+	if (!
+		(ext  &amp;&amp; 
+			((ext.major &gt; major) || 
+			((ext.major == major) &amp;&amp; (ext.minor &gt; minor))  ||
+			((ext.major == major) &amp;&amp; (ext.minor == minor) &amp;&amp; (ext.revision &gt;= revision))))) {
+			// write error in PluginManager
+			if (pluginInfo)
+				pluginInfo.log.push(&quot;Requires &quot; + plugin + &quot; &quot; + major + &quot;.&quot; + minor + &quot;.&quot; + revision);
+			eval(plugin); // generate an error : &quot;Error: ReferenceError: xxxx is not defined&quot;
+	}
+};
+
+bidix.dirname = function(filePath) {
+	if (!filePath) 
+		return;
+	var lastpos;
+	if ((lastpos = filePath.lastIndexOf(&quot;/&quot;)) != -1) {
+		return filePath.substring(0, lastpos);
+	} else {
+		return filePath.substring(0, filePath.lastIndexOf(&quot;\\&quot;));
+	}
+};
+
+bidix.basename = function(filePath) {
+	if (!filePath) 
+		return;
+	var lastpos;
+	if ((lastpos = filePath.lastIndexOf(&quot;#&quot;)) != -1) 
+		filePath = filePath.substring(0, lastpos);
+	if ((lastpos = filePath.lastIndexOf(&quot;/&quot;)) != -1) {
+		return filePath.substring(lastpos + 1);
+	} else
+		return filePath.substring(filePath.lastIndexOf(&quot;\\&quot;)+1);
+};
+
+bidix.initOption = function(name,value) {
+	if (!config.options[name])
+		config.options[name] = value;
+};
+
+//
+// Initializations
+//
+
+// require PasswordOptionPlugin 1.0.1 or better
+bidix.checkPlugin(&quot;PasswordOptionPlugin&quot;, 1, 0, 1);
+
+// styleSheet
+setStylesheet('.txtUploadStoreUrl, .txtUploadBackupDir, .txtUploadDir {width: 22em;}',&quot;uploadPluginStyles&quot;);
+
+//optionsDesc
+merge(config.optionsDesc,{
+	txtUploadStoreUrl: &quot;Url of the UploadService script (default: store.php)&quot;,
+	txtUploadFilename: &quot;Filename of the uploaded file (default: in index.html)&quot;,
+	txtUploadDir: &quot;Relative Directory where to store the file (default: . (downloadService directory))&quot;,
+	txtUploadBackupDir: &quot;Relative Directory where to backup the file. If empty no backup. (default: ''(empty))&quot;,
+	txtUploadUserName: &quot;Upload Username&quot;,
+	pasUploadPassword: &quot;Upload Password&quot;,
+	chkUploadLog: &quot;do Logging in UploadLog (default: true)&quot;,
+	txtUploadLogMaxLine: &quot;Maximum of lines in UploadLog (default: 10)&quot;
+});
+
+// Options Initializations
+bidix.initOption('txtUploadStoreUrl','');
+bidix.initOption('txtUploadFilename','');
+bidix.initOption('txtUploadDir','');
+bidix.initOption('txtUploadBackupDir','');
+bidix.initOption('txtUploadUserName','');
+bidix.initOption('pasUploadPassword','');
+bidix.initOption('chkUploadLog',true);
+bidix.initOption('txtUploadLogMaxLine','10');
+
+
+// Backstage
+merge(config.tasks,{
+	uploadOptions: {text: &quot;upload&quot;, tooltip: &quot;Change UploadOptions and Upload&quot;, content: '&lt;&lt;uploadOptions&gt;&gt;'}
+});
+config.backstageTasks.push(&quot;uploadOptions&quot;);
+
+
+//}}}
+
 </pre>
 </div>
 <div title="bootContents" creator="bootStrap" modifier="bootStrap" created="201111281512" modified="201111281518" tags="boot" changecount="5">
