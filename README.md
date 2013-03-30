@@ -1,6 +1,7 @@
 * Refer to http://pages.github.com/ to set up pages.
 * Check project pages!
 * Maybe move to the new Tiddlywiki system. Seems to be more efficient.
+* Refer to [Github Flavored Markdown](https://help.github.com/articles/github-flavored-markdown "included code")
 
 # Tables in Markdown?
 From https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#wiki-tables
