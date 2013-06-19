@@ -1,7 +1,5 @@
-# Note #
 
-
-You're probably looking for [twitter bootstrap ] (https://github.com/twitter/bootstrap)
+Looking for [twitter bootstrap ] (https://github.com/twitter/bootstrap) ?
 ----
 * Refer to http://pages.github.com/ to set up pages.
 * Check project pages!
