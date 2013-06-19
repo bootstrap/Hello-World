@@ -1,4 +1,8 @@
-* You're probably looking for the Twitter Bootstrap library at https://github.com/twitter/bootstrap
+# Note #
+
+
+You're probably looking for the Twitter Bootstrap library at https://github.com/twitter/bootstrap
+----
 * Refer to http://pages.github.com/ to set up pages.
 * Check project pages!
 * Maybe move to the new Tiddlywiki system. Seems to be more efficient.
