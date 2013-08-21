@@ -1,4 +1,4 @@
-Looking for [twitter bootstrap ] (https://github.com/twitter/bootstrap) ?
+Looking for [twitter bootstrap ] (https://github.com/twbs/bootstrap) ?
 ----
 * Refer to http://pages.github.com/ to set up pages.
 * Check project pages!
