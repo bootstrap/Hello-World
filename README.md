@@ -26,3 +26,5 @@ Markdown | Less | Pretty
 1 | 2 | 3
 Markdown | Less | Pretty
 --- | --- | ---
+
+|1|2|3|
